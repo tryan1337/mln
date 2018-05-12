@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
+import javax.swing.JButton;
 import javax.swing.JOptionPane;
 
 /**
@@ -22,18 +23,18 @@ import javax.swing.JOptionPane;
 public class MainWindow extends javax.swing.JFrame {
     
     ArrayList<Question> questions = new ArrayList<Question>();
-    private Random  rnd = new Random();
-    int Level =0;
+    private Random rnd = new Random();
+    int Level = 0;
     Question currentQuestion;
     
-    private class Question
-    {
-        public Question(String[] s)
-        {
+    private class Question {
+
+        public Question(String[] s) {
             Text = s[0];
-            for (int i=0; i<4; i++)
-                Answers[i]= s[i+1];
-            RightAnswer=s[5];
+            for (int i = 0; i < 4; i++) {
+                Answers[i] = s[i + 1];
+            }
+            RightAnswer = s[5];
             Level = Integer.parseInt(s[6]);
         }
         
@@ -42,7 +43,7 @@ public class MainWindow extends javax.swing.JFrame {
         public String RightAnswer;
         public int Level;
     }
-
+    
     public MainWindow() {
         initComponents();
         ReadFile();
@@ -194,22 +195,34 @@ public class MainWindow extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void bntFiftyFiftyActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntFiftyFiftyActionPerformed
-
+        JButton[] btns = new JButton[]{btnAnswer1, btnAnswer2, btnAnswer3, btnAnswer4};
+        int count = 0;
+        while (count < 2) {
+            int n = rnd.nextInt(4);
+            String ac = btns[n].getActionCommand();
+            if (!ac.equals(currentQuestion.RightAnswer)
+                    && btns[n].isEnabled()) {
+                btns[n].setEnabled(false);
+                count++;
+                
+            }
+        }        
+        
+        bntFiftyFifty.setEnabled(false);
     }//GEN-LAST:event_bntFiftyFiftyActionPerformed
+    
 
     private void bntAnswerPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bntAnswerPerformed
-
-        if (currentQuestion.RightAnswer.equals(evt.getActionCommand()))
-            NextStep();            
-        else
-        {
+        
+        if (currentQuestion.RightAnswer.equals(evt.getActionCommand())) {
+            NextStep();
+        } else {
             JOptionPane.showMessageDialog(this, "Неверный ответ!");
             startGame();
         }
         
     }//GEN-LAST:event_bntAnswerPerformed
 
-   
     /**
      * @param args the command line arguments
      */
@@ -245,28 +258,31 @@ public class MainWindow extends javax.swing.JFrame {
         });
     }
     
-    private void startGame()
-    {
+    private void startGame() {
         Level = 0;
         NextStep();
+        bntFiftyFifty.setEnabled(true);
     }
     
-    private void NextStep()
-    {
+    private void NextStep() {
+        JButton[] btns = new JButton[]{btnAnswer1, btnAnswer2, btnAnswer3, btnAnswer4};
+        
+        for (JButton btn : btns) {
+            btn.setEnabled(true);
+        }
+        
         Level++;
         currentQuestion = GetQuestion(Level);
         ShowQuestion(currentQuestion);
-        lstLevel.setSelectedIndex(lstLevel.getModel().getSize()-Level);
+        lstLevel.setSelectedIndex(lstLevel.getModel().getSize() - Level);
     }
-   
-    private Question GetQuestion(int level)
-    {
-        List<Question> list = questions.stream().filter(q->q.Level==level).collect(Collectors.toList());
+    
+    private Question GetQuestion(int level) {
+        List<Question> list = questions.stream().filter(q -> q.Level == level).collect(Collectors.toList());
         return list.get(rnd.nextInt(list.size()));
     }
     
-    private void ShowQuestion(Question q)
-    {
+    private void ShowQuestion(Question q) {
         lblQuestionText.setText(q.Text);
         btnAnswer1.setText(q.Answers[0]);
         btnAnswer2.setText(q.Answers[1]);
@@ -274,13 +290,12 @@ public class MainWindow extends javax.swing.JFrame {
         btnAnswer4.setText(q.Answers[3]);
     }
     
-    private void ReadFile()
-    {
-        try{
+    private void ReadFile() {
+        try {
             FileInputStream fstream = new FileInputStream("Вопросы.txt");
             BufferedReader br = new BufferedReader(new InputStreamReader(fstream));
             String strLine;
-
+            
             while ((strLine = br.readLine()) != null) {
                 String[] s = strLine.split("\t");
                 questions.add(new Question(s));
@@ -289,7 +304,7 @@ public class MainWindow extends javax.swing.JFrame {
             System.out.println("Ошибка");
         }
     }
-    
+
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bntFiftyFifty;
